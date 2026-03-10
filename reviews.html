@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reviews & Feedback - OrbitMarket</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-icon">🌍</span>
+                <span class="logo-text">OrbitMarket</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="shop.html" class="nav-link">Shop</a></li>
+                <li><a href="offers.html" class="nav-link">Special Offers</a></li>
+                <li><a href="about.html" class="nav-link">About Us</a></li>
+                <li><a href="help.html" class="nav-link">Help</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+                <li><a href="reviews.html" class="nav-link active">Reviews</a></li>
+                <li><a href="login.html" class="nav-link">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Reviews Container -->
+    <div class="reviews-container">
+        <div class="reviews-header">
+            <h1>Customer Reviews & Feedback</h1>
+            <p>Share your experience at OrbitMarket</p>
+        </div>
+
+        <div class="reviews-wrapper">
+            <!-- Review Form -->
+            <div class="review-form-section">
+                <h2>Leave Your Feedback</h2>
+                <form id="reviewForm" class="review-form">
+                    <div class="form-group">
+                        <label for="customerName">Your Name</label>
+                        <input type="text" id="customerName" placeholder="Enter your name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="customerEmail">Your Email</label>
+                        <input type="email" id="customerEmail" placeholder="Enter your email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Rate Your Experience</label>
+                        <div class="emoji-rating">
+                            <span class="emoji-btn" data-rating="1" title="Very Bad">😢</span>
+                            <span class="emoji-btn" data-rating="2" title="Bad">😕</span>
+                            <span class="emoji-btn" data-rating="3" title="Okay">😐</span>
+                            <span class="emoji-btn" data-rating="4" title="Good">🙂</span>
+                            <span class="emoji-btn" data-rating="5" title="Excellent">😍</span>
+                        </div>
+                        <input type="hidden" id="selectedRating" value="0" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reviewTitle">Review Title</label>
+                        <input type="text" id="reviewTitle" placeholder="e.g., Great Products and Service" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reviewText">Your Feedback</label>
+                        <textarea id="reviewText" placeholder="Share your experience..." rows="5" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>What did you like? (Select all that apply)</label>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" name="likes" value="Product Quality"> Product Quality</label>
+                            <label><input type="checkbox" name="likes" value="Pricing"> Pricing</label>
+                            <label><input type="checkbox" name="likes" value="Customer Service"> Customer Service</label>
+                            <label><input type="checkbox" name="likes" value="Cleanliness"> Cleanliness</label>
+                            <label><input type="checkbox" name="likes" value="Variety"> Variety of Products</label>
+                            <label><input type="checkbox" name="likes" value="Location"> Location</label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full">Submit Review</button>
+                </form>
+            </div>
+
+            <!-- Reviews Display -->
+            <div class="reviews-display-section">
+                <h2>All Reviews</h2>
+                
+                <div class="reviews-stats">
+                    <div class="stat">
+                        <h3 id="avgRating">5.0</h3>
+                        <p>Average Rating</p>
+                        <div class="stars" id="ratingStars">⭐⭐⭐⭐⭐</div>
+                    </div>
+                    <div class="stat">
+                        <h3 id="totalReviews">0</h3>
+                        <p>Total Reviews</p>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <label for="filterRating">Filter by Rating:</label>
+                    <select id="filterRating" class="filter-select">
+                        <option value="">All Ratings</option>
+                        <option value="5">⭐⭐⭐⭐⭐ 5 Stars</option>
+                        <option value="4">⭐⭐⭐⭐ 4 Stars</option>
+                        <option value="3">⭐⭐⭐ 3 Stars</option>
+                        <option value="2">⭐⭐ 2 Stars</option>
+                        <option value="1">⭐ 1 Star</option>
+                    </select>
+                </div>
+
+                <div id="reviewsList" class="reviews-list">
+                    <p class="empty-message">No reviews yet. Be the first to leave a review!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        let selectedRating = 0;
+
+        // Emoji Rating Selection
+        const emojiButtons = document.querySelectorAll('.emoji-btn');
+        emojiButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                emojiButtons.forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                this.classList.add('active');
+                selectedRating = this.dataset.rating;
+                document.getElementById('selectedRating').value = selectedRating;
+            });
+        });
+
+        // Submit Review
+        document.getElementById('reviewForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (selectedRating === 0 || selectedRating === '0') {
+                alert('Please select a rating!');
+                return;
+            }
+
+            const likes = Array.from(document.querySelectorAll('input[name="likes"]:checked'))
+                .map(cb => cb.value);
+
+            const review = {
+                id: Date.now(),
+                name: document.getElementById('customerName').value,
+                email: document.getElementById('customerEmail').value,
+                rating: parseInt(selectedRating),
+                title: document.getElementById('reviewTitle').value,
+                text: document.getElementById('reviewText').value,
+                likes: likes,
+                date: new Date().toLocaleDateString(),
+                timestamp: new Date().getTime()
+            };
+
+            let reviews = JSON.parse(localStorage.getItem('reviews')) || [];
+            reviews.push(review);
+            localStorage.setItem('reviews', JSON.stringify(reviews));
+
+            // Reset form
+            this.reset();
+            emojiButtons.forEach(b => b.classList.remove('active'));
+            selectedRating = 0;
+            document.getElementById('selectedRating').value = 0;
+
+            loadReviews();
+            alert('Thank you for your review!');
+        });
+
+        // Load and Display Reviews
+        function loadReviews() {
+            const filterRating = document.getElementById('filterRating').value;
+            let reviews = JSON.parse(localStorage.getItem('reviews')) || [];
+
+            // Sort by newest first
+            reviews.sort((a, b) => b.timestamp - a.timestamp);
+
+            // Filter by rating if selected
+            if (filterRating) {
+                reviews = reviews.filter(r => r.rating === parseInt(filterRating));
+            }
+
+            const container = document.getElementById('reviewsList');
+
+            if (reviews.length === 0) {
+                container.innerHTML = '<p class="empty-message">No reviews yet. Be the first to leave a review!</p>';
+                updateStats([]);
+                return;
+            }
+
+            let html = '<div class="reviews-list-items">';
+            reviews.forEach(review => {
+                const stars = '⭐'.repeat(review.rating);
+                const likesHtml = review.likes.length > 0 ? 
+                    `<div class="review-likes"><strong>Liked:</strong> ${review.likes.join(', ')}</div>` : '';
+
+                html += `
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div>
+                                <h3>${review.title}</h3>
+                                <div class="review-meta">
+                                    <span class="reviewer-name">By ${review.name}</span>
+                                    <span class="review-date">${review.date}</span>
+                                </div>
+                            </div>
+                            <div class="review-rating">${stars}</div>
+                        </div>
+                        <p class="review-text">${review.text}</p>
+                        ${likesHtml}
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+            updateStats(reviews);
+        }
+
+        function updateStats(reviews) {
+            const allReviews = JSON.parse(localStorage.getItem('reviews')) || [];
+            document.getElementById('totalReviews').textContent = allReviews.length;
+
+            if (allReviews.length === 0) {
+                document.getElementById('avgRating').textContent = '0.0';
+                document.getElementById('ratingStars').textContent = '';
+                return;
+            }
+
+            const avgRating = (allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length).toFixed(1);
+            const starDisplay = '⭐'.repeat(Math.floor(avgRating));
+            
+            document.getElementById('avgRating').textContent = avgRating;
+            document.getElementById('ratingStars').textContent = starDisplay;
+        }
+
+        // Filter by rating
+        document.getElementById('filterRating').addEventListener('change', loadReviews);
+
+        // Load reviews on page load
+        window.addEventListener('load', loadReviews);
+    </script>
+</body>
+</html>

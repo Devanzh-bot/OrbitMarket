@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout & Invoice - OrbitMarket</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-icon">🌍</span>
+                <span class="logo-text">OrbitMarket</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="shop.html" class="nav-link">Shop</a></li>
+                <li><a href="offers.html" class="nav-link">Special Offers</a></li>
+                <li><span class="nav-user" id="userDisplay">Welcome, Cashier!</span></li>
+                <li><a href="login.html" class="nav-link" onclick="logout()">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Dashboard Container -->
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html" class="sidebar-link">📊 Dashboard</a></li>
+                <li><a href="products.html" class="sidebar-link">📦 Manage Products</a></li>
+                <li><a href="checkout.html" class="sidebar-link active">🛒 New Bill</a></li>
+                <li><a href="index.html" onclick="logout()" class="sidebar-link">🚪 Logout</a></li>
+            </ul>
+        </div>
+
+        <div class="dashboard-content checkout-content">
+            <h1>Point of Sale - Create Bill</h1>
+
+            <div class="checkout-wrapper">
+                <!-- Left Section: Product Selection -->
+                <div class="checkout-left">
+                    <h2>Select Products</h2>
+                    
+                    <div class="search-bar">
+                        <input type="text" id="searchProducts" placeholder="Search products..." class="search-input">
+                    </div>
+
+                    <div id="availableProducts" class="products-grid">
+                        <p class="empty-message">No products available. Add products in the Products section.</p>
+                    </div>
+                </div>
+
+                <!-- Right Section: Cart & Invoice -->
+                <div class="checkout-right">
+                    <h2>Shopping Cart</h2>
+                    
+                    <div id="cartItems" class="cart-items">
+                        <p class="empty-message">No items in cart</p>
+                    </div>
+
+                    <!-- Invoice Summary -->
+                    <div class="invoice-summary">
+                        <div class="summary-row">
+                            <span>Subtotal:</span>
+                            <span id="subtotal">$0.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Discount (%):</span>
+                            <div class="discount-input">
+                                <input type="number" id="discountPercentage" min="0" max="100" value="0" step="0.1">
+                                <span>%</span>
+                            </div>
+                        </div>
+                        <div class="summary-row">
+                            <span>Discount Amount:</span>
+                            <span id="discountAmount">$0.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Tax (10%):</span>
+                            <span id="taxAmount">$0.00</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Total:</span>
+                            <span id="totalAmount">$0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="checkout-actions">
+                        <button id="clearCartBtn" class="btn btn-secondary btn-full">Clear Cart</button>
+                        <button id="generateInvoiceBtn" class="btn btn-primary btn-full">Generate Invoice</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invoice Modal -->
+    <div id="invoiceModal" class="modal modal-large">
+        <div class="modal-content modal-invoice">
+            <span class="close">&times;</span>
+            <div id="invoiceContent" class="invoice-document">
+                <!-- Invoice will be generated here -->
+            </div>
+            <div class="invoice-actions">
+                <button id="printInvoiceBtn" class="btn btn-primary">Print Invoice</button>
+                <button id="downloadPdfBtn" class="btn btn-secondary">Download PDF</button>
+                <button id="closeInvoiceBtn" class="btn btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Check if user is logged in
+        window.addEventListener('load', function() {
+            if (!localStorage.getItem('userLoggedIn')) {
+                window.location.href = 'login.html';
+            }
+            loadAvailableProducts();
+        });
+
+        let cart = [];
+
+        // Load available products
+        function loadAvailableProducts() {
+            const searchTerm = document.getElementById('searchProducts').value.toLowerCase();
+            let products = JSON.parse(localStorage.getItem('products')) || [];
+            
+            if (searchTerm) {
+                products = products.filter(p => 
+                    p.name.toLowerCase().includes(searchTerm) ||
+                    p.code.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            const container = document.getElementById('availableProducts');
+
+            if (products.length === 0) {
+                container.innerHTML = '<p class="empty-message">No products available. Add products in the Products section.</p>';
+                return;
+            }
+
+            let html = '<div class="products-grid">';
+            products.forEach(product => {
+                html += `
+                    <div class="product-card">
+                        <div class="product-info">
+                            <h4>${product.name}</h4>
+                            <p class="product-code">${product.code}</p>
+                            <p class="product-category">${product.category}</p>
+                            <p class="product-price">$${product.price.toFixed(2)}</p>
+                        </div>
+                        <button class="btn btn-primary btn-small" onclick="addToCart(${product.id})">Add</button>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // Add to cart
+        function addToCart(productId) {
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+            const product = products.find(p => p.id === productId);
+
+            if (product) {
+                const existingItem = cart.find(item => item.id === productId);
+                
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    cart.push({
+                        id: product.id,
+                        name: product.name,
+                        code: product.code,
+                        price: product.price,
+                        quantity: 1
+                    });
+                }
+                updateCart();
+            }
+        }
+
+        // Update cart display
+        function updateCart() {
+            const container = document.getElementById('cartItems');
+            
+            if (cart.length === 0) {
+                container.innerHTML = '<p class="empty-message">No items in cart</p>';
+                updateSummary();
+                return;
+            }
+
+            let html = '<table class="cart-table"><thead><tr><th>Product</th><th>Price</th><th>Qty</th><th>Total</th><th>Action</th></tr></thead><tbody>';
+            
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                html += `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>$${item.price.toFixed(2)}</td>
+                        <td>
+                            <input type="number" min="1" value="${item.quantity}" class="qty-input" onchange="updateQuantity(${index}, this.value)">
+                        </td>
+                        <td>$${itemTotal.toFixed(2)}</td>
+                        <td>
+                            <button class="btn-small btn-delete" onclick="removeFromCart(${index})">Remove</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+            updateSummary();
+        }
+
+        // Update quantity
+        function updateQuantity(index, newQuantity) {
+            const qty = parseInt(newQuantity);
+            if (qty > 0) {
+                cart[index].quantity = qty;
+                updateCart();
+            }
+        }
+
+        // Remove from cart
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCart();
+        }
+
+        // Update summary
+        function updateSummary() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const discountPercent = parseFloat(document.getElementById('discountPercentage').value) || 0;
+            const discountAmount = subtotal * (discountPercent / 100);
+            const afterDiscount = subtotal - discountAmount;
+            const tax = afterDiscount * 0.10;
+            const total = afterDiscount + tax;
+
+            document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
+            document.getElementById('discountAmount').textContent = '$' + discountAmount.toFixed(2);
+            document.getElementById('taxAmount').textContent = '$' + tax.toFixed(2);
+            document.getElementById('totalAmount').textContent = '$' + total.toFixed(2);
+        }
+
+        // Discount change
+        document.getElementById('discountPercentage').addEventListener('input', updateSummary);
+
+        // Search products
+        document.getElementById('searchProducts').addEventListener('input', loadAvailableProducts);
+
+        // Clear cart
+        document.getElementById('clearCartBtn').addEventListener('click', function() {
+            if (cart.length > 0 && confirm('Clear the cart?')) {
+                cart = [];
+                updateCart();
+            }
+        });
+
+        // Generate Invoice
+        document.getElementById('generateInvoiceBtn').addEventListener('click', function() {
+            if (cart.length === 0) {
+                alert('Please add items to cart first!');
+                return;
+            }
+            generateInvoice();
+        });
+
+        function generateInvoice() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const discountPercent = parseFloat(document.getElementById('discountPercentage').value) || 0;
+            const discountAmount = subtotal * (discountPercent / 100);
+            const afterDiscount = subtotal - discountAmount;
+            const tax = afterDiscount * 0.10;
+            const total = afterDiscount + tax;
+
+            const invoiceNumber = 'INV-' + Date.now();
+            const invoiceDate = new Date().toLocaleDateString();
+            const invoiceTime = new Date().toLocaleTimeString();
+
+            let invoiceHTML = `
+                <div class="invoice">
+                    <div class="invoice-header">
+                        <h1>🌍 OrbitMarket</h1>
+                        <p>Professional Supermarket Management</p>
+                        <p>Address: 123 Market Street, City</p>
+                        <p>Phone: (555) 123-4567</p>
+                    </div>
+
+                    <div class="invoice-details">
+                        <div class="invoice-info">
+                            <p><strong>Invoice No:</strong> ${invoiceNumber}</p>
+                            <p><strong>Date:</strong> ${invoiceDate}</p>
+                            <p><strong>Time:</strong> ${invoiceTime}</p>
+                            <p><strong>Cashier:</strong> Staff</p>
+                        </div>
+                    </div>
+
+                    <table class="invoice-items">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Code</th>
+                                <th>Qty</th>
+                                <th>Unit Price</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                invoiceHTML += `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>${item.code}</td>
+                        <td class="qty-center">${item.quantity}</td>
+                        <td class="amount">$${item.price.toFixed(2)}</td>
+                        <td class="amount">$${itemTotal.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+
+            invoiceHTML += `
+                        </tbody>
+                    </table>
+
+                    <div class="invoice-summary">
+                        <div class="summary-item">
+                            <span>Subtotal:</span>
+                            <span>$${subtotal.toFixed(2)}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span>Discount (${discountPercent}%):</span>
+                            <span>-$${discountAmount.toFixed(2)}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span>Subtotal after Discount:</span>
+                            <span>$${afterDiscount.toFixed(2)}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span>Tax (10%):</span>
+                            <span>$${tax.toFixed(2)}</span>
+                        </div>
+                        <div class="summary-item total">
+                            <span>Total Amount Due:</span>
+                            <span>$${total.toFixed(2)}</span>
+                        </div>
+                    </div>
+
+                    <div class="invoice-footer">
+                        <p>Thank you for shopping at OrbitMarket!</p>
+                        <p>Please leave feedback and ratings at our website</p>
+                        <p>www.orbitmarket.com</p>
+                        <p style="margin-top: 20px; font-size: 12px; color: #888;">This is a computer-generated invoice. No signature required.</p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('invoiceContent').innerHTML = invoiceHTML;
+            
+            // Save bill to localStorage
+            const bill = {
+                id: invoiceNumber,
+                date: invoiceDate,
+                items: cart,
+                subtotal: subtotal,
+                discountPercent: discountPercent,
+                discountAmount: discountAmount,
+                tax: tax,
+                total: total
+            };
+            
+            let bills = JSON.parse(localStorage.getItem('bills')) || [];
+            bills.push(bill);
+            localStorage.setItem('bills', JSON.stringify(bills));
+
+            // Show modal
+            document.getElementById('invoiceModal').style.display = 'block';
+        }
+
+        // Invoice Modal Controls
+        const invoiceModal = document.getElementById('invoiceModal');
+        const closeBtn = document.querySelector('.close');
+
+        closeBtn.onclick = function() {
+            invoiceModal.style.display = 'none';
+            cart = [];
+            updateCart();
+            document.getElementById('discountPercentage').value = 0;
+        }
+
+        document.getElementById('closeInvoiceBtn').addEventListener('click', function() {
+            invoiceModal.style.display = 'none';
+            cart = [];
+            updateCart();
+            document.getElementById('discountPercentage').value = 0;
+        });
+
+        document.getElementById('printInvoiceBtn').addEventListener('click', function() {
+            window.print();
+        });
+
+        document.getElementById('downloadPdfBtn').addEventListener('click', function() {
+            const element = document.getElementById('invoiceContent');
+            const opt = {
+                margin: 10,
+                filename: 'invoice-' + Date.now() + '.pdf',
+                image: { type: 'png', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+            };
+            html2pdf().set(opt).from(element).save();
+        });
+
+        window.onclick = function(event) {
+            if (event.target == invoiceModal) {
+                invoiceModal.style.display = 'none';
+                cart = [];
+                updateCart();
+                document.getElementById('discountPercentage').value = 0;
+            }
+        }
+    </script>
+</body>
+</html>

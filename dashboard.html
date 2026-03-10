@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - OrbitMarket</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-icon">🌍</span>
+                <span class="logo-text">OrbitMarket</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="shop.html" class="nav-link">Shop</a></li>
+                <li><a href="offers.html" class="nav-link">Special Offers</a></li>
+                <li><span class="nav-user" id="userDisplay">Welcome, Cashier!</span></li>
+                <li><a href="login.html" class="nav-link" onclick="logout()">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Dashboard Container -->
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html" class="sidebar-link active">📊 Dashboard</a></li>
+                <li><a href="products.html" class="sidebar-link">📦 Manage Products</a></li>
+                <li><a href="checkout.html" class="sidebar-link">🛒 New Bill</a></li>
+                <li><a href="index.html" onclick="logout()" class="sidebar-link">🚪 Logout</a></li>
+            </ul>
+        </div>
+
+        <div class="dashboard-content">
+            <h1>Dashboard</h1>
+            
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">📦</div>
+                    <div class="stat-info">
+                        <h3 id="totalProducts">0</h3>
+                        <p>Total Products</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-info">
+                        <h3 id="totalSales">$0.00</h3>
+                        <p>Total Sales</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏷️</div>
+                    <div class="stat-info">
+                        <h3 id="avgDiscount">0%</h3>
+                        <p>Average Discount</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-info">
+                        <h3 id="totalBills">0</h3>
+                        <p>Total Bills</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-sections">
+                <div class="section">
+                    <h2>Quick Actions</h2>
+                    <div class="quick-actions">
+                        <a href="products.html" class="action-btn">
+                            <span class="action-icon">➕</span>
+                            <span>Add Product</span>
+                        </a>
+                        <a href="checkout.html" class="action-btn">
+                            <span class="action-icon">🛒</span>
+                            <span>Create Bill</span>
+                        </a>
+                        <a href="reviews.html" class="action-btn">
+                            <span class="action-icon">⭐</span>
+                            <span>View Reviews</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>Recent Products</h2>
+                    <div id="recentProducts" class="products-list">
+                        <p class="empty-message">No products added yet. <a href="products.html">Add products here</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Check if user is logged in
+        window.addEventListener('load', function() {
+            if (!localStorage.getItem('userLoggedIn')) {
+                window.location.href = 'login.html';
+            }
+            updateDashboardStats();
+            displayRecentProducts();
+        });
+
+        function updateDashboardStats() {
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+            const bills = JSON.parse(localStorage.getItem('bills')) || [];
+            
+            document.getElementById('totalProducts').textContent = products.length;
+            document.getElementById('totalBills').textContent = bills.length;
+            
+            let totalSales = 0;
+            let totalDiscount = 0;
+            bills.forEach(bill => {
+                totalSales += bill.total;
+                totalDiscount += bill.discount || 0;
+            });
+            
+            document.getElementById('totalSales').textContent = '$' + totalSales.toFixed(2);
+            document.getElementById('avgDiscount').textContent = bills.length > 0 ? 
+                ((totalDiscount / bills.length) * 100).toFixed(1) + '%' : '0%';
+        }
+
+        function displayRecentProducts() {
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+            const recentProducts = products.slice(-5).reverse();
+            const container = document.getElementById('recentProducts');
+            
+            if (recentProducts.length === 0) {
+                container.innerHTML = '<p class="empty-message">No products added yet. <a href="products.html">Add products here</a></p>';
+                return;
+            }
+            
+            let html = '<table class="products-table"><thead><tr><th>Product</th><th>Price</th><th>Status</th></tr></thead><tbody>';
+            recentProducts.forEach(product => {
+                html += `<tr><td>${product.name}</td><td>$${product.price.toFixed(2)}</td><td><span class="status active">Active</span></td></tr>`;
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

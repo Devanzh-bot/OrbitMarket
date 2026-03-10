@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop - OrbitMarket</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-icon">🌍</span>
+                <span class="logo-text">OrbitMarket</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="shop.html" class="nav-link active">Shop</a></li>
+                <li><a href="offers.html" class="nav-link">Special Offers</a></li>
+                <li><a href="about.html" class="nav-link">About Us</a></li>
+                <li><a href="help.html" class="nav-link">Help</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+                <li><a href="reviews.html" class="nav-link">Reviews</a></li>
+                <li><a href="login.html" class="nav-link">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Shop Container -->
+    <div class="shop-container">
+        <div class="shop-header">
+            <h1>Shop Our Products</h1>
+            <p>Browse and explore our wide range of supermarket products</p>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="shop-content">
+            <div class="shop-sidebar">
+                <div class="filter-card">
+                    <h3>Categories</h3>
+                    <div class="category-filters">
+                        <label><input type="checkbox" class="category-filter" value=""> All Categories</label>
+                        <label><input type="checkbox" class="category-filter" value="Dairy"> 🥛 Dairy</label>
+                        <label><input type="checkbox" class="category-filter" value="Groceries"> 🌾 Groceries</label>
+                        <label><input type="checkbox" class="category-filter" value="Beverages"> 🧃 Beverages</label>
+                        <label><input type="checkbox" class="category-filter" value="Snacks"> 🍿 Snacks</label>
+                        <label><input type="checkbox" class="category-filter" value="Frozen"> ❄️ Frozen Foods</label>
+                        <label><input type="checkbox" class="category-filter" value="Personal Care"> 🧴 Personal Care</label>
+                        <label><input type="checkbox" class="category-filter" value="Household"> 🧹 Household Items</label>
+                    </div>
+                </div>
+
+                <div class="filter-card">
+                    <h3>Price Range</h3>
+                    <div class="price-filter">
+                        <input type="range" id="priceRange" min="0" max="50" value="50" class="price-slider">
+                        <p>Up to: <span id="priceValue">$50</span></p>
+                    </div>
+                </div>
+
+                <div class="filter-card">
+                    <h3>Sort By</h3>
+                    <select id="sortBy" class="sort-select">
+                        <option value="popular">Most Popular</option>
+                        <option value="newest">Newest</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                        <option value="name">Name: A to Z</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Products Display -->
+            <div class="shop-main">
+                <div class="search-bar" style="margin-bottom: 2rem;">
+                    <input type="text" id="searchShop" placeholder="Search products..." class="search-input" style="max-width: 100%;">
+                </div>
+
+                <div id="productsDisplay" class="products-shop-grid">
+                    <p class="empty-message">Loading products...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 OrbitMarket. All rights reserved.</p>
+        <p>Making supermarket shopping easy and convenient</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        let allProducts = [];
+
+        // Load and display shop products
+        window.addEventListener('load', function() {
+            loadShopProducts();
+            setupFilters();
+        });
+
+        function loadShopProducts() {
+            allProducts = JSON.parse(localStorage.getItem('products')) || [];
+            displayProducts(allProducts);
+        }
+
+        function displayProducts(products) {
+            const container = document.getElementById('productsDisplay');
+            
+            if (products.length === 0) {
+                container.innerHTML = '<p class="empty-message">No products found. Please check back soon!</p>';
+                return;
+            }
+
+            let html = '<div class="shop-products-grid">';
+            products.forEach(product => {
+                html += `
+                    <div class="shop-product-card">
+                        <div class="product-category-badge">${product.category}</div>
+                        <div class="product-emoji">📦</div>
+                        <h3>${product.name}</h3>
+                        <p class="product-code">${product.code}</p>
+                        <p class="product-description">${product.description || 'Premium quality product'}</p>
+                        <div class="product-stock">
+                            <span>${product.quantity > 0 ? '✓ In Stock' : '✗ Out of Stock'}</span>
+                            <span class="stock-qty">(${product.quantity})</span>
+                        </div>
+                        <div class="product-footer">
+                            <div class="product-price">$${product.price.toFixed(2)}</div>
+                            <button class="btn btn-small btn-primary" onclick="addToCompare(${product.id})">Compare</button>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // Setup filters
+        function setupFilters() {
+            // Category filters
+            document.querySelectorAll('.category-filter').forEach(filter => {
+                filter.addEventListener('change', applyFilters);
+            });
+
+            // Price range
+            const priceRange = document.getElementById('priceRange');
+            priceRange.addEventListener('input', function() {
+                document.getElementById('priceValue').textContent = '$' + this.value;
+                applyFilters();
+            });
+
+            // Sort
+            document.getElementById('sortBy').addEventListener('change', applyFilters);
+
+            // Search
+            document.getElementById('searchShop').addEventListener('input', applyFilters);
+        }
+
+        function applyFilters() {
+            let filtered = [...allProducts];
+
+            // Category filter
+            const selectedCategories = Array.from(document.querySelectorAll('.category-filter:checked'))
+                .map(cb => cb.value)
+                .filter(v => v !== '');
+            
+            if (selectedCategories.length > 0) {
+                filtered = filtered.filter(p => selectedCategories.includes(p.category));
+            }
+
+            // Price filter
+            const maxPrice = parseFloat(document.getElementById('priceRange').value);
+            filtered = filtered.filter(p => p.price <= maxPrice);
+
+            // Search filter
+            const searchTerm = document.getElementById('searchShop').value.toLowerCase();
+            if (searchTerm) {
+                filtered = filtered.filter(p => 
+                    p.name.toLowerCase().includes(searchTerm) ||
+                    p.code.toLowerCase().includes(searchTerm) ||
+                    p.category.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            // Sorting
+            const sortBy = document.getElementById('sortBy').value;
+            switch(sortBy) {
+                case 'price-low':
+                    filtered.sort((a, b) => a.price - b.price);
+                    break;
+                case 'price-high':
+                    filtered.sort((a, b) => b.price - a.price);
+                    break;
+                case 'name':
+                    filtered.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+                case 'newest':
+                    filtered.reverse();
+                    break;
+            }
+
+            displayProducts(filtered);
+        }
+
+        function addToCompare(productId) {
+            const product = allProducts.find(p => p.id === productId);
+            if (product) {
+                alert(`📊 Comparing: ${product.name}\n\nPrice: $${product.price.toFixed(2)}\nCategory: ${product.category}\nIn Stock: ${product.quantity > 0 ? 'Yes' : 'No'}`);
+            }
+        }
+    </script>
+</body>
+</html>

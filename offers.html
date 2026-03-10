@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Special Offers - OrbitMarket</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-icon">🌍</span>
+                <span class="logo-text">OrbitMarket</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="shop.html" class="nav-link">Shop</a></li>
+                <li><a href="offers.html" class="nav-link active">Special Offers</a></li>
+                <li><a href="about.html" class="nav-link">About Us</a></li>
+                <li><a href="help.html" class="nav-link">Help</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+                <li><a href="reviews.html" class="nav-link">Reviews</a></li>
+                <li><a href="login.html" class="nav-link">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Offers Container -->
+    <div class="offers-container">
+        <div class="offers-header">
+            <h1>🎉 Special Offers & Deals</h1>
+            <p>Save big on your favorite products</p>
+        </div>
+
+        <!-- Featured Deals -->
+        <section class="offers-section">
+            <h2>Featured Deals</h2>
+            <div class="offers-grid">
+                <div class="offer-card featured-offer">
+                    <div class="offer-badge">-30%</div>
+                    <div class="offer-emoji">🥛</div>
+                    <h3>Dairy Premium</h3>
+                    <p class="offer-description">Fresh milk, yogurt & cheese</p>
+                    <div class="offer-details">
+                        <span class="original-price">$50</span>
+                        <span class="sale-price">$35</span>
+                    </div>
+                    <p class="offer-validity">Valid till: March 31, 2025</p>
+                    <button class="btn btn-primary btn-full">Shop Now</button>
+                </div>
+
+                <div class="offer-card featured-offer">
+                    <div class="offer-badge">-25%</div>
+                    <div class="offer-emoji">🥤</div>
+                    <h3>Beverage Bonanza</h3>
+                    <p class="offer-description">Juices, drinks & refreshments</p>
+                    <div class="offer-details">
+                        <span class="original-price">$40</span>
+                        <span class="sale-price">$30</span>
+                    </div>
+                    <p class="offer-validity">Valid till: March 25, 2025</p>
+                    <button class="btn btn-primary btn-full">Shop Now</button>
+                </div>
+
+                <div class="offer-card featured-offer">
+                    <div class="offer-badge">-40%</div>
+                    <div class="offer-emoji">🍿</div>
+                    <h3>Snack Attack</h3>
+                    <p class="offer-description">Chips, cookies & dry snacks</p>
+                    <div class="offer-details">
+                        <span class="original-price">$30</span>
+                        <span class="sale-price">$18</span>
+                    </div>
+                    <p class="offer-validity">Valid till: March 20, 2025</p>
+                    <button class="btn btn-primary btn-full">Shop Now</button>
+                </div>
+
+                <div class="offer-card featured-offer">
+                    <div class="offer-badge">-20%</div>
+                    <div class="offer-emoji">🧹</div>
+                    <h3>Home Care</h3>
+                    <p class="offer-description">Cleaning & household essentials</p>
+                    <div class="offer-details">
+                        <span class="original-price">$60</span>
+                        <span class="sale-price">$48</span>
+                    </div>
+                    <p class="offer-validity">Valid till: March 30, 2025</p>
+                    <button class="btn btn-primary btn-full">Shop Now</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Promo Codes -->
+        <section class="offers-section">
+            <h2>🎟️ Active Promo Codes</h2>
+            <div class="promo-codes-grid">
+                <div class="promo-code-card">
+                    <div class="promo-code">SAVE15</div>
+                    <p class="promo-desc">Get 15% off on orders above $50</p>
+                    <p class="promo-validity">Code valid for 30 days</p>
+                    <button class="btn btn-secondary btn-small" onclick="copyPromo('SAVE15')">Copy Code</button>
+                </div>
+
+                <div class="promo-code-card">
+                    <div class="promo-code">FIRST20</div>
+                    <p class="promo-desc">20% off for first-time customers</p>
+                    <p class="promo-validity">Code valid for 60 days</p>
+                    <button class="btn btn-secondary btn-small" onclick="copyPromo('FIRST20')">Copy Code</button>
+                </div>
+
+                <div class="promo-code-card">
+                    <div class="promo-code">GROCERIES10</div>
+                    <p class="promo-desc">Flat 10% off on grocery items</p>
+                    <p class="promo-validity">Code valid for 45 days</p>
+                    <button class="btn btn-secondary btn-small" onclick="copyPromo('GROCERIES10')">Copy Code</button>
+                </div>
+
+                <div class="promo-code-card">
+                    <div class="promo-code">WEEKLY25</div>
+                    <p class="promo-desc">Extra 25% off on checkout</p>
+                    <p class="promo-validity">Code valid for 7 days</p>
+                    <button class="btn btn-secondary btn-small" onclick="copyPromo('WEEKLY25')">Copy Code</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Weekly Specials -->
+        <section class="offers-section">
+            <h2>📅 Weekly Specials</h2>
+            <div class="weekly-specials">
+                <div class="special-day">
+                    <h3>Monday - Dairy Day</h3>
+                    <p>🥛 20% off on all dairy products</p>
+                    <p class="special-note">Milk, Cheese, Yogurt & More</p>
+                </div>
+                <div class="special-day">
+                    <h3>Wednesday - Grocery Worth</h3>
+                    <p>🌾 15% off on groceries</p>
+                    <p class="special-note">Grains, Spices & Essentials</p>
+                </div>
+                <div class="special-day">
+                    <h3>Friday - Snack Fest</h3>
+                    <p>🍿 40% off on snacks & beverages</p>
+                    <p class="special-note">Chips, Drinks & Treats</p>
+                </div>
+                <div class="special-day">
+                    <h3>Weekend - Mega Save</h3>
+                    <p>🎉 Upto 30% off on everything</p>
+                    <p class="special-note">Saturday & Sunday Only</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Loyalty Program Info -->
+        <section class="loyalty-banner">
+            <div class="loyalty-content">
+                <h2>⭐ Join Our Loyalty Program</h2>
+                <p>Earn points on every purchase and redeem for exclusive rewards</p>
+                <ul class="loyalty-benefits">
+                    <li>✓ 1 point = 1 rupee spent</li>
+                    <li>✓ Exclusive member-only deals</li>
+                    <li>✓ Birthday specials & surprises</li>
+                    <li>✓ Free delivery on orders above $30</li>
+                    <li>✓ Early access to new products</li>
+                </ul>
+                <button class="btn btn-primary btn-large">Join Loyalty Program</button>
+            </div>
+            <div class="loyalty-emoji">🎁</div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 OrbitMarket. All rights reserved.</p>
+        <p>Enjoy great deals and save more!</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        function copyPromo(code) {
+            navigator.clipboard.writeText(code);
+            alert(`Promo code "${code}" copied to clipboard!`);
+        }
+    </script>
+</body>
+</html>
